@@ -83,12 +83,15 @@ def analyze_with_gemini(image_bytes: bytes, gemini_api_key: str):
 Analiza con rigor la fotografía y clasifica el estado en UNA de las 4 categorías:
 
 1. 'Escoba de Bruja' (Moniliophthora perniciosa):
-   - En ramas y follaje: proliferación anormal de brotes vegetativos en escoba o nido de pájaro, ramas hinchadas/hipertrofiadas, cojinetes florales vegetados, hojas secas que no caen adheridas a las ramas.
-   - En frutos/mazorcas: mazorcas deformadas ('chirimoyas', abultadas, asimétricas, acorazonadas), endurecimiento o pudrición con consistencia leñosa, o PRESENCIA DE BASIDIOCARPOS (pequeñas setas u hongos con sombrerito carnoso o pie, de color rosado, marrón claro o blanquecino) brotando directamente de la lesión necrótica o tejido momificado.
+   - En ramas y brotes: proliferación anormal en forma de escoba, hipertrofia de cojinetes florales, ramas hinchadas, hojas secas adheridas que no se desprenden.
+   - En frutos/mazorcas:
+     * Manchas necróticas marrones o pardas secas, de contornos irregulares firmes, acompañadas de MADURACIÓN PREMATURA HETEROGÉNEA (parches amarillos y verdes tipo 'islas verdes') alrededor de las lesiones, SIN polvillo blanco fúngico superficial.
+     * Frutos deformados ('chirimoyas', asimétricos, abultados o acorazonados) o momias duras leñosas.
+     * O presencia de basidiocarpos (pequeñas setas/hongos carnoso con pie).
 
 2. 'Monilia' (Moniliophthora roreri):
-   - Fruto/mazorca que presenta manchas pardas, chocolate o marrones CUBIERTAS por una densa capa de POLVILLO BLANCO, crema o ceniciento uniforme (fieltro de esporas fúngicas microscópicas pulverulentas, NO setas/champiñones carnosos con pie).
-   - REGLA: Si la mazorca tiene polvillo/costra pulverulenta blanca o ceniza sin deformación asimétrica de chirimoya ni setas, es Monilia.
+   - Fruto/mazorca que presenta manchas pardas o chocolate CUBIERTAS DE MANERA EVIDENTE por una densa capa de POLVILLO BLANCO, crema o ceniciento (fieltro de esporas fúngicas pulverulentas).
+   - REGLA CRÍTICA DE DIFERENCIACIÓN: Si la mancha marrón sobre el fruto verde/amarillento está limpia de polvillo blanco y presenta maduración prematura irregular ('islas verdes'), es 'Escoba de Bruja', NO Monilia. Monilia se reserva exclusivamente para frutos con polvillo blanco/ceniciento o pudrición acuosa expansiva con gibas blandas.
 
 3. 'Mazorca Negra' (Phytophthora spp.):
    - Mancha necrótica café oscura o negro brillante/húmeda que avanza uniformemente sobre la cáscara de la mazorca, con borde acuoso bien delimitado, firme y SIN polvillo blanco fúngico ni setas.
