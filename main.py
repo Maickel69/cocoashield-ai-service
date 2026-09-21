@@ -80,28 +80,25 @@ def analyze_with_gemini(image_bytes: bytes, gemini_api_key: str):
     b64_img = base64.b64encode(image_bytes).decode('utf-8')
     
     prompt = """Eres un fitopatólogo agrónomo experto de campo en diagnóstico fitosanitario de cacao (Theobroma cacao).
-Analiza con rigor científico la fotografía y clasifica el estado en UNA de las 4 categorías exclusivas:
+Analiza con rigor científico la fotografía y clasifica el estado en UNA de las 4 categorías fitosanitarias exclusivas:
 
-1. 'Monilia' (Moniliophthora roreri):
-   - Fruto/mazorca que presenta manchas pardas o chocolate acompañadas de una CUBIERTA REAL DE POLVILLO O FIELTRO BLANCO, crema o ceniciento aterciopelado (esporulación fúngica pulverulenta).
-   - REGLA DE COEXISTENCIA CON NECROSIS: Si una mazorca tiene una porción marrón oscura o negra, pero también presenta una masa o polvillo blanco/cenizo de esporas fúngicas en la superficie, clasifícala INDISCUTIBLEMENTE como 'Monilia' (las esporas blancas confirman la maduración de Moniliophthora roreri).
-   - O frutos jóvenes con abultamientos blandos (gibas) y pudrición húmeda.
-   - DIFERENCIACIÓN CON BOLSAS: El polvillo blanco de Monilia es una masa harinosa/cenicienta pegada al fruto, NO es una bolsa plástica transparente de enfunde ni son gotas de agua condensada.
+1. 'Mazorca Negra' (Phytophthora spp.):
+   - Necrosis de color marrón oscuro, café chocolate negruzco o negro carbón continuo y uniforme.
+   - Suele originarse en el pedúnculo (base) extendiéndose hacia abajo, o en la punta del fruto hacia arriba, o envolver mazorcas enteras que se tornan oscuras, secas o momificadas.
+   - La corteza se aprecia firme o de pudrición lisa/húmeda, y NO presenta la capa espesa aterciopelada de polvillo fúngico blanco harinoso de la Monilia.
+   - BOLSAS DE ENFUNDE / PROTECCIÓN PLÁSTICA: Si la mazorca está cubierta o envuelta por una bolsa o funda plástica transparente de protección agrícola (enfunde), y el fruto dentro de la bolsa presenta tejido necrótico marrón oscuro o negro, clasifícala INDISCUTIBLEMENTE como 'Mazorca Negra'. Las arrugas del plástico, brillos por reflejo solar/flash y gotas de condensación de agua en la bolsa NO son polvillo fúngico.
 
-2. 'Escoba de Bruja' (Moniliophthora perniciosa):
-   - En ramas y brotes: proliferación anormal de ramillas en racimo/escoba, cojinetes florales hipertrofiados, hojas secas adheridas a las ramas.
-   - En frutos/mazorcas:
-     * Manchas necróticas marrones o pardas secas, coriáceas y duras, rodeadas de MADURACIÓN PREMATURA HETEROGÉNEA (mosaico de áreas amarillas y verdes tipo 'islas verdes') alrededor de la lesión, SIN polvo blanco fúngico.
-     * Frutos deformados ('chirimoyas', abultados o acorazonados) o momias leñosas.
-     * O presencia de basidiocarpos (pequeñas setas/hongos carnosos con pie brotando del tejido muerto).
+2. 'Monilia' (Moniliophthora roreri):
+   - Presencia de una CUBIERTA REAL, ESPESA Y PULVERULENTA DE POLVILLO O ESPORAS fúngicas blanquecinas, crema o cenicientas (aspecto de harina, ceniza o fieltro algodonoso espeso) que cubre manchas pardas sobre la corteza del fruto.
+   - En frutos jóvenes, presencia característica de gibas, abultamientos o protuberancias irregulares (deformaciones asimétricas de la mazorca) con mancha chocolate y pudrición interna acuosa.
+   - Nota: Si no hay polvillo fúngico blanco evidente y solo es tejido oscuro/negro bajo plástico o liso, clasifícalo como 'Mazorca Negra'.
 
-3. 'Mazorca Negra' (Phytophthora spp.):
-   - Mancha necrótica firme de color marrón oscuro, café rojizo o negro carbón brillante que se expande cubriendo la mazorca, con límites nítidos o borde acuoso.
-   - La superficie de la lesión es lisa o húmeda y NUNCA presenta la capa de polvillo fúngico blanco/cenizo aterciopelado de la Monilia.
-   - ATENCIÓN BOLSAS DE ENFUNDE: Si la mazorca está cubierta por una bolsa plástica transparente de protección (enfunde) con arrugas o condensación de agua, evalúa el color del fruto: si el fruto presenta coloración necrótica oscura, marrón rojiza o negra bajo la bolsa, clasifícalo como 'Mazorca Negra'.
+3. 'Escoba de Bruja' (Moniliophthora perniciosa):
+   - En ramas y brotes vegetativos: proliferación hipertrófica de ramillas laterales en forma de racimo o escoba de bruja, hojas secas de color pardo adheridas que no caen.
+   - En frutos y cojinetes: manchas necróticas marrones de consistencia dura, seca y leñosa (coriáceas), acompañadas de maduración prematura anormal en mosaico ('islas verdes' o amarilleamiento disparejo), frutos acorazonados o deformes en 'chirimoya', o presencia de basidiocarpos (pequeñas setitas o sombreritos carnosos rojizos/rosados con pie que nacen del tejido muerto).
 
 4. 'Sano':
-   - Frutos y follaje limpios, de color verde o amarillo uniforme según su maduración natural, sin manchas necróticas patológicas ni pudriciones. Frutos sanos dentro de bolsas de protección sin lesiones se clasifican como Sano.
+   - Mazorcas, ramas y follaje vigoroso y limpio, de coloración verde o amarilla uniforme (o rojizo/morado natural según la variedad y maduración fisiológica), sin manchas necróticas ni pudriciones activas. Mazorcas sanas dentro de fundas plásticas sin lesiones oscuras se clasifican como Sano.
 
 Responde ÚNICAMENTE un objeto JSON válido con esta estructura exacta:
 {
