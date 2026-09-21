@@ -79,30 +79,34 @@ def analyze_with_gemini(image_bytes: bytes, gemini_api_key: str):
     """
     b64_img = base64.b64encode(image_bytes).decode('utf-8')
     
-    prompt = """Eres un fitopatólogo agrónomo experto de campo en patologías del cultivo de cacao (Theobroma cacao).
-Analiza con rigor la fotografía y clasifica el estado en UNA de las 4 categorías:
+    prompt = """Eres un fitopatólogo agrónomo experto de campo en diagnóstico fitosanitario de cacao (Theobroma cacao).
+Analiza con rigor científico la fotografía y clasifica el estado en UNA de las 4 categorías exclusivas:
 
-1. 'Escoba de Bruja' (Moniliophthora perniciosa):
-   - En ramas y brotes: proliferación anormal en forma de escoba, hipertrofia de cojinetes florales, ramas hinchadas, hojas secas adheridas que no se desprenden.
+1. 'Monilia' (Moniliophthora roreri):
+   - Fruto/mazorca que presenta manchas pardas o chocolate acompañadas de una CUBIERTA REAL DE POLVILLO O FIELTRO BLANCO, crema o ceniciento aterciopelado (esporulación fúngica pulverulenta).
+   - REGLA DE COEXISTENCIA CON NECROSIS: Si una mazorca tiene una porción marrón oscura o negra, pero también presenta una masa o polvillo blanco/cenizo de esporas fúngicas en la superficie, clasifícala INDISCUTIBLEMENTE como 'Monilia' (las esporas blancas confirman la maduración de Moniliophthora roreri).
+   - O frutos jóvenes con abultamientos blandos (gibas) y pudrición húmeda.
+   - DIFERENCIACIÓN CON BOLSAS: El polvillo blanco de Monilia es una masa harinosa/cenicienta pegada al fruto, NO es una bolsa plástica transparente de enfunde ni son gotas de agua condensada.
+
+2. 'Escoba de Bruja' (Moniliophthora perniciosa):
+   - En ramas y brotes: proliferación anormal de ramillas en racimo/escoba, cojinetes florales hipertrofiados, hojas secas adheridas a las ramas.
    - En frutos/mazorcas:
-     * Manchas necróticas marrones o pardas secas, de contornos irregulares firmes, acompañadas de MADURACIÓN PREMATURA HETEROGÉNEA (parches amarillos y verdes tipo 'islas verdes') alrededor de las lesiones, SIN polvillo blanco fúngico superficial.
-     * Frutos deformados ('chirimoyas', asimétricos, abultados o acorazonados) o momias duras leñosas.
-     * O presencia de basidiocarpos (pequeñas setas/hongos carnoso con pie).
-
-2. 'Monilia' (Moniliophthora roreri):
-   - Fruto/mazorca que presenta manchas pardas o chocolate CUBIERTAS DE MANERA EVIDENTE por una densa capa de POLVILLO BLANCO, crema o ceniciento (fieltro de esporas fúngicas pulverulentas).
-   - REGLA CRÍTICA DE DIFERENCIACIÓN: Si la mancha marrón sobre el fruto verde/amarillento está limpia de polvillo blanco y presenta maduración prematura irregular ('islas verdes'), es 'Escoba de Bruja', NO Monilia. Monilia se reserva exclusivamente para frutos con polvillo blanco/ceniciento o pudrición acuosa expansiva con gibas blandas.
+     * Manchas necróticas marrones o pardas secas, coriáceas y duras, rodeadas de MADURACIÓN PREMATURA HETEROGÉNEA (mosaico de áreas amarillas y verdes tipo 'islas verdes') alrededor de la lesión, SIN polvo blanco fúngico.
+     * Frutos deformados ('chirimoyas', abultados o acorazonados) o momias leñosas.
+     * O presencia de basidiocarpos (pequeñas setas/hongos carnosos con pie brotando del tejido muerto).
 
 3. 'Mazorca Negra' (Phytophthora spp.):
-   - Mancha necrótica café oscura o negro brillante/húmeda que avanza uniformemente sobre la cáscara de la mazorca, con borde acuoso bien delimitado, firme y SIN polvillo blanco fúngico ni setas.
+   - Mancha necrótica firme de color marrón oscuro, café rojizo o negro carbón brillante que se expande cubriendo la mazorca, con límites nítidos o borde acuoso.
+   - La superficie de la lesión es lisa o húmeda y NUNCA presenta la capa de polvillo fúngico blanco/cenizo aterciopelado de la Monilia.
+   - ATENCIÓN BOLSAS DE ENFUNDE: Si la mazorca está cubierta por una bolsa plástica transparente de protección (enfunde) con arrugas o condensación de agua, evalúa el color del fruto: si el fruto presenta coloración necrótica oscura, marrón rojiza o negra bajo la bolsa, clasifícalo como 'Mazorca Negra'.
 
 4. 'Sano':
-   - Fruto o follaje verde/amarillo limpio, sin manchas necróticas patológicas, sin deformaciones ni esporulación fúngica.
+   - Frutos y follaje limpios, de color verde o amarillo uniforme según su maduración natural, sin manchas necróticas patológicas ni pudriciones. Frutos sanos dentro de bolsas de protección sin lesiones se clasifican como Sano.
 
 Responde ÚNICAMENTE un objeto JSON válido con esta estructura exacta:
 {
-  "diagnosis": "Monilia" | "Escoba de Bruja" | "Mazorca Negra" | "Sano",
-  "confidence": 97.0,
+  "diagnosis": "Mazorca Negra" | "Monilia" | "Escoba de Bruja" | "Sano",
+  "confidence": 96.0,
   "description": "Explicación agronómica detallada y signos visuales observados en la imagen",
   "treatment": "Protocolo de manejo cultural o fitosanitario inmediato recomendado"
 }"""
