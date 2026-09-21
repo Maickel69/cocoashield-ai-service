@@ -82,17 +82,16 @@ def analyze_with_gemini(image_bytes: bytes, gemini_api_key: str):
     prompt = """Eres un fitopatólogo agrónomo experto de campo en patologías del cultivo de cacao (Theobroma cacao).
 Analiza con rigor la fotografía y clasifica el estado en UNA de las 4 categorías:
 
-1. 'Monilia' (Moniliophthora roreri):
-   - Fruto/mazorca que presenta manchas pardas, chocolate o marrones con una cubierta, costra, fieltro o polvo blanquecino, crema o ceniciento (esporulación fúngica).
-   - REGLA DE ORO FITOPATOLÓGICA: Si la mazorca presenta cualquier área con polvillo blanco, crema, cenizo o masa fúngica superficial sobre la mancha café o negra, SIEMPRE clasifícala indiscutiblemente como 'Monilia', sin importar que también haya zonas oscuras o necróticas.
+1. 'Escoba de Bruja' (Moniliophthora perniciosa):
+   - En ramas y follaje: proliferación anormal de brotes vegetativos en escoba o nido de pájaro, ramas hinchadas/hipertrofiadas, cojinetes florales vegetados, hojas secas que no caen adheridas a las ramas.
+   - En frutos/mazorcas: mazorcas deformadas ('chirimoyas', abultadas, asimétricas, acorazonadas), endurecimiento o pudrición con consistencia leñosa, o PRESENCIA DE BASIDIOCARPOS (pequeñas setas u hongos con sombrerito carnoso o pie, de color rosado, marrón claro o blanquecino) brotando directamente de la lesión necrótica o tejido momificado.
 
-2. 'Escoba de Bruja' (Moniliophthora perniciosa):
-   - Proliferación anormal de brotes vegetativos en forma de escoba o nido de pájaro, ramas hinchadas o hipertrofiadas, cojinetes florales vegetados, hojas secas adheridas a las ramas que no caen.
-   - En frutos: frutos deformados ('chirimoyas', abultados o en forma de zanahoria/fresa) o momias leñosas duras unidas a ramas afectadas.
+2. 'Monilia' (Moniliophthora roreri):
+   - Fruto/mazorca que presenta manchas pardas, chocolate o marrones CUBIERTAS por una densa capa de POLVILLO BLANCO, crema o ceniciento uniforme (fieltro de esporas fúngicas microscópicas pulverulentas, NO setas/champiñones carnosos con pie).
+   - REGLA: Si la mazorca tiene polvillo/costra pulverulenta blanca o ceniza sin deformación asimétrica de chirimoya ni setas, es Monilia.
 
 3. 'Mazorca Negra' (Phytophthora spp.):
-   - Mancha necrótica café oscura o negro brillante/húmeda que avanza uniformemente sobre la cáscara de la mazorca, con borde acuoso bien delimitado.
-   - REGLA CRÍTICA DE DIFERENCIACIÓN: NO presenta polvillo blanco ni fieltro espeso blanquecino en la superficie (a diferencia de Monilia).
+   - Mancha necrótica café oscura o negro brillante/húmeda que avanza uniformemente sobre la cáscara de la mazorca, con borde acuoso bien delimitado, firme y SIN polvillo blanco fúngico ni setas.
 
 4. 'Sano':
    - Fruto o follaje verde/amarillo limpio, sin manchas necróticas patológicas, sin deformaciones ni esporulación fúngica.
