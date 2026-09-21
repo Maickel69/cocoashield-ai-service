@@ -67,26 +67,42 @@ class DiagnosisResponse(BaseModel):
 
 DEFAULT_GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "").strip() or base64.b64decode("QVEuQWI4Uk42S1hXc1ZVOWhQOE1OejliTmVBREZsQ0VYVXE5djgxbXNqMXpDWTI3c2xiT1E=").decode()
 
+CANDIDATE_MODELS = [
+    "gemini-flash-lite-latest",
+    "gemini-flash-latest"
+]
+
 def analyze_with_gemini(image_bytes: bytes, gemini_api_key: str):
     """
     Inferencia multimodal de alta precisión con Google Gemini Vision.
+    Prueba secuencialmente los modelos disponibles para máxima resiliencia.
     """
     b64_img = base64.b64encode(image_bytes).decode('utf-8')
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={gemini_api_key}"
     
-    prompt = """Eres un fitopatólogo agrónomo experto en patologías del cultivo de cacao (Theobroma cacao).
+    prompt = """Eres un fitopatólogo agrónomo experto de campo en patologías del cultivo de cacao (Theobroma cacao).
 Analiza con rigor la fotografía y clasifica el estado en UNA de las 4 categorías:
-1. 'Escoba de Bruja' (Moniliophthora perniciosa): Proliferación anormal de brotes en forma de escoba, ramas deformadas o secas, cojinetes florales vegetados, hojas secas adheridas o frutos momificados leñosos.
-2. 'Monilia' (Moniliophthora roreri): Manchas pardas acuosas sobre la mazorca con halo o presencia de polvillo blanco/cenizo de esporas fúngicas.
-3. 'Mazorca Negra' (Phytophthora spp.): Mancha necrótica marrón oscura o negra firme que avanza cubriendo la mazorca, con límites definidos y sin polvillo blanco.
-4. 'Sano': Fruto y follaje completamente limpios sin lesiones patológicas ni deformaciones.
+
+1. 'Monilia' (Moniliophthora roreri):
+   - Fruto/mazorca que presenta manchas pardas, chocolate o marrones con una cubierta, costra, fieltro o polvo blanquecino, crema o ceniciento (esporulación fúngica).
+   - REGLA DE ORO FITOPATOLÓGICA: Si la mazorca presenta cualquier área con polvillo blanco, crema, cenizo o masa fúngica superficial sobre la mancha café o negra, SIEMPRE clasifícala indiscutiblemente como 'Monilia', sin importar que también haya zonas oscuras o necróticas.
+
+2. 'Escoba de Bruja' (Moniliophthora perniciosa):
+   - Proliferación anormal de brotes vegetativos en forma de escoba o nido de pájaro, ramas hinchadas o hipertrofiadas, cojinetes florales vegetados, hojas secas adheridas a las ramas que no caen.
+   - En frutos: frutos deformados ('chirimoyas', abultados o en forma de zanahoria/fresa) o momias leñosas duras unidas a ramas afectadas.
+
+3. 'Mazorca Negra' (Phytophthora spp.):
+   - Mancha necrótica café oscura o negro brillante/húmeda que avanza uniformemente sobre la cáscara de la mazorca, con borde acuoso bien delimitado.
+   - REGLA CRÍTICA DE DIFERENCIACIÓN: NO presenta polvillo blanco ni fieltro espeso blanquecino en la superficie (a diferencia de Monilia).
+
+4. 'Sano':
+   - Fruto o follaje verde/amarillo limpio, sin manchas necróticas patológicas, sin deformaciones ni esporulación fúngica.
 
 Responde ÚNICAMENTE un objeto JSON válido con esta estructura exacta:
 {
-  "diagnosis": "Escoba de Bruja" | "Monilia" | "Mazorca Negra" | "Sano",
-  "confidence": 94.0,
-  "description": "Explicación visual y justificación agronómica",
-  "treatment": "Manejo o tratamiento fitosanitario recomendado"
+  "diagnosis": "Monilia" | "Escoba de Bruja" | "Mazorca Negra" | "Sano",
+  "confidence": 97.0,
+  "description": "Explicación agronómica detallada y signos visuales observados en la imagen",
+  "treatment": "Protocolo de manejo cultural o fitosanitario inmediato recomendado"
 }"""
 
     req_body = {
@@ -102,33 +118,43 @@ Responde ÚNICAMENTE un objeto JSON válido con esta estructura exacta:
         }
     }
     
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(req_body).encode('utf-8'),
-        headers={'Content-Type': 'application/json'},
-        method='POST'
-    )
-    
-    with urllib.request.urlopen(req, timeout=18) as resp:
-        res_data = json.loads(resp.read().decode('utf-8'))
-        cand = res_data['candidates'][0]['content']['parts'][0]['text']
-        parsed = json.loads(cand)
-        
-        # Validar que diagnosis sea una de las clases válidas
-        diag = parsed.get("diagnosis", "").strip()
-        matched = "Sano"
-        for c in CLASSES:
-            if c.lower() in diag.lower():
-                matched = c
-                break
+    encoded_body = json.dumps(req_body).encode('utf-8')
+    last_err = None
+
+    for model_name in CANDIDATE_MODELS:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={gemini_api_key}"
+        req = urllib.request.Request(
+            url,
+            data=encoded_body,
+            headers={'Content-Type': 'application/json'},
+            method='POST'
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                res_data = json.loads(resp.read().decode('utf-8'))
+                cand = res_data['candidates'][0]['content']['parts'][0]['text']
+                parsed = json.loads(cand)
                 
-        return {
-            "diagnosis": matched,
-            "confidence": float(parsed.get("confidence", 94.0)),
-            "description": parsed.get("description", ""),
-            "treatment": parsed.get("treatment", ""),
-            "model": "Google Gemini Vision (IA Fitosanitaria)"
-        }
+                diag = parsed.get("diagnosis", "").strip()
+                matched = "Sano"
+                for c in CLASSES:
+                    if c.lower() in diag.lower():
+                        matched = c
+                        break
+                        
+                return {
+                    "diagnosis": matched,
+                    "confidence": float(parsed.get("confidence", 95.0)),
+                    "description": parsed.get("description", ""),
+                    "treatment": parsed.get("treatment", ""),
+                    "model": f"Google Gemini Vision ({model_name})"
+                }
+        except Exception as e:
+            print(f"[Gemini Vision] Modelo {model_name} falló: {e}")
+            last_err = e
+            continue
+
+    raise RuntimeError(f"Todos los modelos de Gemini Vision fallaron. Último error: {last_err}")
 
 def advanced_botanical_vision(img: Image.Image):
     """
@@ -161,8 +187,8 @@ def advanced_botanical_vision(img: Image.Image):
     withered_brown = (h_chan >= 6) & (h_chan <= 32) & (s_chan > 35) & (v_chan > 35) & (v_chan < 185)
     withered_ratio = float(withered_brown.mean())
     
-    # 2. Monilia: polvo/esporas blanco o cenizo con baja saturación sobre la mazorca
-    white_spores = (r > 190) & (g > 190) & (b > 190) & (s_chan < 40)
+    # 2. Monilia: polvo/esporas blanco, crema o cenizo sobre la superficie
+    white_spores = ((r > 150) & (g > 150) & (s_chan < 80) & (v_chan > 130)) | ((r > 170) & (g > 170) & (b > 130))
     white_spore_ratio = float(white_spores.mean())
     
     # 3. Mazorca Negra: tejido oscuro y necrosis profunda
@@ -189,10 +215,11 @@ def advanced_botanical_vision(img: Image.Image):
         scores["Escoba de Bruja"] += (avg_gradient - 16.0) * 3.5
     scores["Escoba de Bruja"] += withered_ratio * 150.0
     
-    # Puntaje Monilia:
-    scores["Monilia"] += white_spore_ratio * 340.0
-    if white_spore_ratio > 0.06:
-        scores["Monilia"] += 30.0
+    # Puntaje Monilia (siempre prevalece si hay presencia de esporas fúngicas claras sobre el fruto):
+    scores["Monilia"] += white_spore_ratio * 400.0
+    if white_spore_ratio > 0.04:
+        scores["Monilia"] += 50.0
+        scores["Mazorca Negra"] = max(0.0, scores["Mazorca Negra"] - 30.0)
         
     # Puntaje Mazorca Negra:
     scores["Mazorca Negra"] += black_rot_ratio * 190.0
